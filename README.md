@@ -36,6 +36,9 @@ If compiled with the `code` argument, this will compile from source.
 Else, it will use the `rom.zed` file contained in the example folder as a ROM.
 Note that the `code` argument still needs its language argument, if compiling from source.
 
+### git-ssh
+Use SSH link as origin for cloning git repos.
+
 ### help
 Print out the contents of the `README.md` (this) file.
 

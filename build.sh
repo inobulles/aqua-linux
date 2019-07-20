@@ -10,6 +10,7 @@ update=""
 execute=""
 code=""
 example=""
+git_prefix="https://github.com"
 
 while test $# -gt 0; do
 	if   [ "$1" = "kos"     ]; then kos="kos"
@@ -17,6 +18,7 @@ while test $# -gt 0; do
 	elif [ "$1" = "execute" ]; then execute="execute"
 	elif [ "$1" = "code"    ]; then code="$2";    shift
 	elif [ "$1" = "example" ]; then example="$2"; shift
+	elif [ "$1" = "git-ssh" ]; then git_prefix="ssh://git@github.com"
 	elif [ "$1" = "help"    ]; then cat README.md
 	else echo "WARNING Unknown argument '$1' (pass 'help' as an argument to get a list of all arguments)";
 	fi
@@ -30,17 +32,17 @@ mkdir -p code
 echo "Downloading potential missing folders ..."
 
 if [ ! -d "kos" ]; then
-	git clone https://github.com/inobulles/aqua-kos --depth 1 -b master
+	git clone $git_prefix/inobulles/aqua-kos --depth 1 -b master
 	mv aqua-kos kos
 fi
 
 if [ ! -d "kos/zvm" ]; then
-	git clone https://github.com/inobulles/aqua-zvm --depth 1 -b master
+	git clone $git_prefix/inobulles/aqua-zvm --depth 1 -b master
 	mv aqua-zvm kos/zvm
 fi
 
 if [ ! -d "root" ]; then
-	git clone https://github.com/inobulles/aqua-root --depth 1 -b master
+	git clone $git_prefix/inobulles/aqua-root --depth 1 -b master
 	mv aqua-root root
 fi
 
@@ -59,7 +61,7 @@ fi
 if [ "$example" != "" ]; then
 	if [ ! -d "examples" ]; then
 		echo "Downloading examples repository ..."
-		git clone https://github.com/inobulles/aqua-examples --depth 1 -b master
+		git clone $git_prefix/inobulles/aqua-examples --depth 1 -b master
 		mv aqua-examples examples
 	else
 		echo "Updating examples repository ..."
@@ -72,7 +74,7 @@ fi
 if [ "$code" != "" ]; then
 	if [ ! -d "compiler" ]; then
 		echo "Installing compiler extension ..."
-		git clone https://github.com/inobulles/aqua-compiler --depth 1 -b master
+		git clone $git_prefix/inobulles/aqua-compiler --depth 1 -b master
 		mv aqua-compiler compiler
 	fi
 	
@@ -96,7 +98,7 @@ if [ "$code" != "" ]; then
 	
 	echo "Compiling code with universal compiler ..."
 	cd compiler
-	sh build.sh $update code $code
+	sh build.sh git-prefix $git_prefix $update code $code
 	cd ..
 	mv compiler/rom.zed rom.zed
 else
