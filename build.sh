@@ -15,8 +15,8 @@ while test $# -gt 0; do
 	if   [ "$1" = "kos"     ]; then kos="true"
 	elif [ "$1" = "update"  ]; then update="true"
 	elif [ "$1" = "execute" ]; then execute="true"
-	elif [ "$1" = "code"    ]; then code="$2"
-	elif [ "$1" = "example" ]; then example="$2"
+	elif [ "$1" = "code"    ]; then code="$2"    shift
+	elif [ "$1" = "example" ]; then example="$2" shift
 	elif [ "$1" = "help"    ]; then cat README.md
 	else echo "WARNING Unknown argument '$1' (pass 'help' as an argument to get a list of all arguments)";
 	fi
@@ -102,7 +102,7 @@ else
 	fi
 fi
 
-if [ "$kos" = "true" ]; then
+if [ ! -f "aqua" ] || [ "$kos" = "true" ]; then
 	echo "Compiling kos ..."
 	
 	curl_args=""
@@ -121,11 +121,13 @@ if [ "$kos" = "true" ]; then
 	
 	set -e
 	
+	rm aqua
 	gcc kos/glue.c -o aqua -std=gnu99 -O -Wall \
 		-DKOS_CURRENT=KOS_DESKTOP \
 		-Wno-maybe-uninitialized -Wno-unused-result -Wno-unused-variable -Wno-unused-but-set-variable -Wno-main \
 		-lSDL2 -lGL -lGLU -lm -lpthread \
-		$curl_args $audio_args $discord_args
+		$curl_args $audio_args $discord_args \
+		-lfreetype -Ikos/src/external/freetype2 # fonts are a fucking pain in the ass, pls fix
 fi
 
 if [ "$execute" = "true" ]; then
