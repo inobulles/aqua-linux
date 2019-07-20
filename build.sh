@@ -12,9 +12,9 @@ code=""
 example=""
 
 while test $# -gt 0; do
-	if   [ "$1" = "kos"     ]; then kos="true"
-	elif [ "$1" = "update"  ]; then update="true"
-	elif [ "$1" = "execute" ]; then execute="true"
+	if   [ "$1" = "kos"     ]; then kos="kos"
+	elif [ "$1" = "update"  ]; then update="update"
+	elif [ "$1" = "execute" ]; then execute="execute"
 	elif [ "$1" = "code"    ]; then code="$2"    shift
 	elif [ "$1" = "example" ]; then example="$2" shift
 	elif [ "$1" = "help"    ]; then cat README.md
@@ -41,7 +41,7 @@ if [ ! -d "root" ]; then
 	mv aqua-root root
 fi
 
-if [ "$update" = "true" ]; then
+if [ "$update" = "update" ]; then
 	echo "Updating components ..."
 	
 	cd kos
@@ -73,7 +73,7 @@ if [ "$code" != "" ]; then
 		mv aqua-compiler compiler
 	fi
 	
-	if [ "$update" = "true" ]; then
+	if [ "$update" = "update" ]; then
 		echo "Updating compiler extension ..."
 		cd compiler
 		git pull origin master
@@ -102,7 +102,7 @@ else
 	fi
 fi
 
-if [ ! -f "aqua" ] || [ "$kos" = "true" ]; then
+if [ ! -f "aqua" ] || [ "$kos" = "kos" ]; then
 	echo "Compiling kos ..."
 	
 	curl_args=""
@@ -130,7 +130,7 @@ if [ ! -f "aqua" ] || [ "$kos" = "true" ]; then
 		-lfreetype -Ikos/src/external/freetype2 # fonts are a fucking pain in the ass, pls fix
 fi
 
-if [ "$execute" = "true" ]; then
+if [ "$execute" = "execute" ]; then
 	echo "Executing kos ..."
 	./aqua
 fi
