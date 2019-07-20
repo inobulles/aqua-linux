@@ -26,7 +26,7 @@ while test $# -gt 0; do
 	shift
 done
 
-echo "Creating code/ ..."
+echo "Creating code directory ..."
 mkdir -p code
 
 echo "Installing potential missing dependencies ..."
@@ -72,10 +72,13 @@ ld -lSDL2 >/dev/null 2>&1 || {
 ld -lGL -lGLU >/dev/null 2>&1 || {
 	echo "Installing MESA (GL and GLU) ..."
 	
-	if [ `command -v apt` != "" ]; then # debian
+	if [ `command -v apt` != "" ]; then
 		sudo add-apt-repository -y ppa:ubuntu-x-swat/updates
 		sudo apt-get -y update
 		sudo apt-get -y dist-upgrade
+	elif [ `command -v yum` != "" ]; then
+		sudo yum install -y mesa-libGL
+		sudo yum install -y mesa-libGL-devel
 	else
 		echo "WARNING Platform not supported for installing the MESA library" 
 		exit 1
@@ -84,9 +87,12 @@ ld -lGL -lGLU >/dev/null 2>&1 || {
 ld -lmad >/dev/null 2>&1 || {
 	echo "Installing MAD ..."
 	
-	if [ `command -v apt` != "" ]; then # debian
+	if [ `command -v apt` != "" ]; then
 		sudo apt-get install -y libmad0
 		sudo apt-get install -y libmad0-dev
+	elif [ `command -v yum` != "" ]; then
+		sudo yum install -y libmad
+		sudo yum install -y libmad-devel
 	else
 		echo "WARNING Platform not supported for installing the MAD library"
 	fi
@@ -94,9 +100,12 @@ ld -lmad >/dev/null 2>&1 || {
 ld -lpulse -lpulse-simple >/dev/null 2>&1 || {
 	echo "Installing PulseAudio ..."
 	
-	if [ `command -v apt` != "" ]; then # debian
+	if [ `command -v apt` != "" ]; then
 		sudo apt-get install -y libpulse0
 		sudo apt-get install -y libpulse-dev
+	elif [ `command -v yum` != "" ]; then
+		sudo yum install -y pulseaudio-libs
+		sudo yum install -y pulseaudio-libs-devel
 	else
 		echo "WARNING Platform not supported for installing the PulseAudio library"
 	fi
