@@ -128,7 +128,7 @@ if [ ! -f "aqua" ] || [ "$kos" = "kos" ]; then
 	set -e
 	
 	rm -f aqua
-	gcc kos/glue.c -o aqua -std=gnu99 -O -Wall \
+	gcc kos/glue.c -o aqua -std=gnu99 -O -Wall -no-pie \
 		-DKOS_CURRENT=KOS_DESKTOP \
 		-Wno-maybe-uninitialized -Wno-unused-result -Wno-unused-variable -Wno-unused-but-set-variable -Wno-main \
 		-lSDL2 -lGL -lGLU -lm -lpthread \

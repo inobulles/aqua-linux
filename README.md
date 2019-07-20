@@ -38,6 +38,7 @@ Note that the `code` argument still needs its language argument, if compiling fr
 
 ### git-ssh
 Use SSH link as origin for cloning git repos.
+Note that this argument will be completely useless for 99% of people, so no point in using it if you don't understand it.
 
 ### help
 Print out the contents of the `README.md` (this) file.
