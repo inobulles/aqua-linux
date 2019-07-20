@@ -15,8 +15,8 @@ while test $# -gt 0; do
 	if   [ "$1" = "kos"     ]; then kos="kos"
 	elif [ "$1" = "update"  ]; then update="update"
 	elif [ "$1" = "execute" ]; then execute="execute"
-	elif [ "$1" = "code"    ]; then code="$2"    shift
-	elif [ "$1" = "example" ]; then example="$2" shift
+	elif [ "$1" = "code"    ]; then code="$2";    shift
+	elif [ "$1" = "example" ]; then example="$2"; shift
 	elif [ "$1" = "help"    ]; then cat README.md
 	else echo "WARNING Unknown argument '$1' (pass 'help' as an argument to get a list of all arguments)";
 	fi
@@ -80,7 +80,8 @@ if [ "$code" != "" ]; then
 		cd ..
 	fi
 	
-	mkdir compiler/code
+	rm -rf compiler/code
+	mkdir -p compiler/code
 	
 	if [ "$example" != "" ]; then
 		echo "Copying example code to compiler ..."
@@ -97,13 +98,13 @@ if [ "$code" != "" ]; then
 	mv compiler/rom.zed rom.zed
 else
 	if [ "$example" != "" ]; then
-		echo "Getting example rom to execute ..."
+		echo "Getting example ROM to execute ..."
 		cp examples/$example/rom.zed rom.zed
 	fi
 fi
 
 if [ ! -f "aqua" ] || [ "$kos" = "kos" ]; then
-	echo "Compiling kos ..."
+	echo "Compiling KOS ..."
 	
 	curl_args=""
 	audio_args=""
@@ -121,7 +122,7 @@ if [ ! -f "aqua" ] || [ "$kos" = "kos" ]; then
 	
 	set -e
 	
-	rm aqua
+	rm -f aqua
 	gcc kos/glue.c -o aqua -std=gnu99 -O -Wall \
 		-DKOS_CURRENT=KOS_DESKTOP \
 		-Wno-maybe-uninitialized -Wno-unused-result -Wno-unused-variable -Wno-unused-but-set-variable -Wno-main \
@@ -131,9 +132,9 @@ if [ ! -f "aqua" ] || [ "$kos" = "kos" ]; then
 fi
 
 if [ "$execute" = "execute" ]; then
-	echo "Executing kos ..."
+	echo "Executing KOS ..."
 	./aqua
 fi
 
-echo "build.sh terminated with no errors"
+echo "AQUA Linux builder terminated with no errors"
 exit 0
