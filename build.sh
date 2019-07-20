@@ -24,6 +24,9 @@ while test $# -gt 0; do
 	shift
 done
 
+echo "Creating code/ ..."
+mkdir -p code
+
 echo "Downloading potential missing folders ..."
 
 if [ ! -d "kos" ]; then
