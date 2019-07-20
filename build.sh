@@ -93,7 +93,7 @@ if [ "$code" != "" ]; then
 	
 	echo "Compiling code with universal compiler ..."
 	cd compiler
-	sh build.sh code $code
+	sh build.sh $update code $code
 	cd ..
 	mv compiler/rom.zed rom.zed
 else
