@@ -13,13 +13,13 @@ example=""
 git_prefix="https://github.com"
 
 while test $# -gt 0; do
-	if   [ "$1" = "kos"     ]; then kos="kos"
-	elif [ "$1" = "update"  ]; then update="update"
-	elif [ "$1" = "execute" ]; then execute="execute"
-	elif [ "$1" = "code"    ]; then code="$2";    shift
-	elif [ "$1" = "example" ]; then example="$2"; shift
-	elif [ "$1" = "git-ssh" ]; then git_prefix="ssh://git@github.com"
-	elif [ "$1" = "help"    ]; then cat README.md
+	if   [ "$1" = "kos"      ]; then kos="kos"
+	elif [ "$1" = "update"   ]; then update="update"
+	elif [ "$1" = "execute"  ]; then execute="execute"
+	elif [ "$1" = "code"     ]; then code="$2";    shift
+	elif [ "$1" = "example"  ]; then example="$2"; shift
+	elif [ "$1" = "git-ssh"  ]; then git_prefix="ssh://git@github.com"
+	elif [ "$1" = "help"     ]; then cat README.md
 	else echo "WARNING Unknown argument '$1' (pass 'help' as an argument to get a list of all arguments)";
 	fi
 	
@@ -29,6 +29,80 @@ done
 echo "Creating code/ ..."
 mkdir -p code
 
+echo "Installing potential missing dependencies ..."
+set +e
+
+ld -lcurl >/dev/null 2>&1 || {
+	echo "Installing CURL ..."
+	
+	rm -rf install-dump
+	mkdir -p install-dump
+	cd install-dump
+	
+	wget https://curl.haxx.se/download/curl-7.65.3.tar.gz
+	tar -xvf curl-7.65.3.tar.gz
+	cd curl-7.65.3.tar.gz
+	
+	./configure
+	make
+	sudo make install
+	
+	cd ..
+	rm -rf install-dump
+}
+ld -lSDL2 >/dev/null 2>&1 || {
+	echo "Installing SDL2 ..."
+	
+	rm -rf install-dump
+	mkdir -p install-dump
+	cd install-dump
+	
+	git clone https://github.com/spurious/SDL-mirror
+	cd SDL-mirror
+	mkdir -p build
+	cd build
+	
+	../configure
+	make
+	sudo make install
+	
+	cd ../..
+	rm -rf install-dump
+}
+ld -lGL -lGLU >/dev/null 2>&1 || {
+	echo "Installing MESA (GL and GLU) ..."
+	
+	if [ `command -v apt` != "" ]; then # debian
+		sudo add-apt-repository -y ppa:ubuntu-x-swat/updates
+		sudo apt-get -y update
+		sudo apt-get -y dist-upgrade
+	else
+		echo "WARNING Platform not supported for installing the MESA library" 
+		exit 1
+	fi
+}
+ld -lmad >/dev/null 2>&1 || {
+	echo "Installing MAD ..."
+	
+	if [ `command -v apt` != "" ]; then # debian
+		sudo apt-get install -y libmad0
+		sudo apt-get install -y libmad0-dev
+	else
+		echo "WARNING Platform not supported for installing the MAD library"
+	fi
+}
+ld -lpulse -lpulse-simple >/dev/null 2>&1 || {
+	echo "Installing PulseAudio ..."
+	
+	if [ `command -v apt` != "" ]; then # debian
+		sudo apt-get install -y libpulse0
+		sudo apt-get install -y libpulse-dev
+	else
+		echo "WARNING Platform not supported for installing the PulseAudio library"
+	fi
+}
+
+set -e
 echo "Downloading potential missing folders ..."
 
 if [ ! -d "kos" ]; then
@@ -63,7 +137,7 @@ if [ "$example" != "" ]; then
 		echo "Downloading examples repository ..."
 		git clone $git_prefix/inobulles/aqua-examples --depth 1 -b master
 		mv aqua-examples examples
-	else
+	elif [ "$update" = "update" ]; then
 		echo "Updating examples repository ..."
 		cd examples
 		git pull origin master
@@ -126,9 +200,9 @@ if [ ! -f "aqua" ] || [ "$kos" = "kos" ]; then
 	
 	set +e
 	
-	ld $curl_link    && curl_args="-D__HAS_CURL $curl_link"
-	ld $audio_link   && audio_args="-D__HAS_AUDIO $audio_link"
-	ld $discord_link && discord_args="-D__HAS_DISCORD $discord_link"
+	ld $curl_link    >/dev/null 2>&1 && curl_args="-D__HAS_CURL $curl_link"
+	ld $audio_link   >/dev/null 2>&1 && audio_args="-D__HAS_AUDIO $audio_link"
+	ld $discord_link >/dev/null 2>&1 && discord_args="-D__HAS_DISCORD $discord_link"
 	
 	set -e
 	
