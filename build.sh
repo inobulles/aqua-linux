@@ -66,7 +66,7 @@ ld -lSDL2 >/dev/null 2>&1 || {
 	make
 	sudo make install
 	
-	cd ../..
+	cd ../../..
 	rm -rf install-dump
 }
 ld -lGL -lGLU >/dev/null 2>&1 || {
@@ -109,6 +109,25 @@ ld -lpulse -lpulse-simple >/dev/null 2>&1 || {
 	else
 		echo "WARNING Platform not supported for installing the PulseAudio library"
 	fi
+}
+
+echo "Installing potential missing extensions ..."
+mkdir -p extensions
+
+ld -L. -l:extensions/libdiscord-rpc.so >/dev/null 2>&1 || {
+	echo "Installing Discord RPC ..."
+	mkdir -p extensions/discord-rpc
+	
+	rm -rf install-dump
+	mkdir -p install-dump
+	cd install-dump
+	
+	wget https://github.com/discordapp/discord-rpc/releases/download/v3.4.0/discord-rpc-linux.zip
+	unzip discord-rpc-linux.zip
+	mv discord-rpc/linux-dynamic/lib/libdiscord-rpc.so ../extensions/libdiscord-rpc.so
+	
+	cd ..
+	rm -rf install-dump
 }
 
 set -e

@@ -2,6 +2,7 @@ kos
 root
 compiler
 examples
+extensions
 code
 aqua
 rom.zed
