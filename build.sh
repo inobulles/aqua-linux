@@ -101,6 +101,11 @@ if [ "$code" != "" ]; then
 	sh build.sh git-prefix $git_prefix $update code $code
 	cd ..
 	mv compiler/rom.zed rom.zed
+	
+	if [ "$example" != "" ]; then
+		echo "Copying generated ROM file to example folder ..."
+		cp rom.zed examples/$example/rom.zed
+	fi
 else
 	if [ "$example" != "" ]; then
 		echo "Getting example ROM to execute ..."
@@ -132,8 +137,7 @@ if [ ! -f "aqua" ] || [ "$kos" = "kos" ]; then
 		-DKOS_CURRENT=KOS_DESKTOP \
 		-Wno-maybe-uninitialized -Wno-unused-result -Wno-unused-variable -Wno-unused-but-set-variable -Wno-main \
 		-lSDL2 -lGL -lGLU -lm -lpthread \
-		$curl_args $audio_args $discord_args \
-		-lfreetype -Ikos/src/external/freetype2 # fonts are a fucking pain in the ass, pls fix
+		$curl_args $audio_args $discord_args
 fi
 
 if [ "$execute" = "execute" ]; then
