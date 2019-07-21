@@ -112,9 +112,8 @@ ld -lpulse -lpulse-simple >/dev/null 2>&1 || {
 }
 
 echo "Installing potential missing extensions ..."
-mkdir -p extensions
 
-ld -L. -l:extensions/libdiscord-rpc.so >/dev/null 2>&1 || {
+ld -ldiscord-rpc >/dev/null 2>&1 || {
 	echo "Installing Discord RPC ..."
 	mkdir -p extensions/discord-rpc
 	
@@ -124,7 +123,7 @@ ld -L. -l:extensions/libdiscord-rpc.so >/dev/null 2>&1 || {
 	
 	wget https://github.com/discordapp/discord-rpc/releases/download/v3.4.0/discord-rpc-linux.zip
 	unzip discord-rpc-linux.zip
-	mv discord-rpc/linux-dynamic/lib/libdiscord-rpc.so ../extensions/libdiscord-rpc.so
+	sudo mv discord-rpc/linux-dynamic/lib/libdiscord-rpc.so /usr/lib/libdiscord-rpc.so
 	
 	cd ..
 	rm -rf install-dump
@@ -224,7 +223,7 @@ if [ ! -f "aqua" ] || [ "$kos" = "kos" ]; then
 	
 	curl_link="-lcurl"
 	audio_link="-lmad -lpulse -lpulse-simple"
-	discord_link="-L. -l:extensions/libdiscord-rpc.so"
+	discord_link="-ldiscord-rpc"
 	
 	set +e
 	
