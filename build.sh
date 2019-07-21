@@ -30,10 +30,12 @@ echo "Creating code directory ..."
 mkdir -p code
 
 echo "Installing potential missing dependencies ..."
+installed=""
 set +e
 
 ld -lcurl >/dev/null 2>&1 || {
 	echo "Installing CURL ..."
+	installed="installed"
 	
 	rm -rf install-dump
 	mkdir -p install-dump
@@ -52,6 +54,7 @@ ld -lcurl >/dev/null 2>&1 || {
 }
 ld -lSDL2 >/dev/null 2>&1 || {
 	echo "Installing SDL2 ..."
+	installed="installed"
 	
 	rm -rf install-dump
 	mkdir -p install-dump
@@ -71,6 +74,7 @@ ld -lSDL2 >/dev/null 2>&1 || {
 }
 ld -lGL -lGLU >/dev/null 2>&1 || {
 	echo "Installing MESA (GL and GLU) ..."
+	installed="installed"
 	
 	if [ `command -v apt` != "" ]; then
 		sudo add-apt-repository -y ppa:ubuntu-x-swat/updates
@@ -86,6 +90,7 @@ ld -lGL -lGLU >/dev/null 2>&1 || {
 }
 ld -lmad >/dev/null 2>&1 || {
 	echo "Installing MAD ..."
+	installed="installed"
 	
 	if [ `command -v apt` != "" ]; then
 		sudo apt-get install -y libmad0
@@ -99,6 +104,7 @@ ld -lmad >/dev/null 2>&1 || {
 }
 ld -lpulse -lpulse-simple >/dev/null 2>&1 || {
 	echo "Installing PulseAudio ..."
+	installed="installed"
 	
 	if [ `command -v apt` != "" ]; then
 		sudo apt-get install -y libpulse0
@@ -115,7 +121,7 @@ echo "Installing potential missing extensions ..."
 
 ld -ldiscord-rpc >/dev/null 2>&1 || {
 	echo "Installing Discord RPC ..."
-	mkdir -p extensions/discord-rpc
+	installed="installed"
 	
 	rm -rf install-dump
 	mkdir -p install-dump
@@ -214,7 +220,7 @@ else
 	fi
 fi
 
-if [ ! -f "aqua" ] || [ "$kos" = "kos" ]; then
+if [ ! -f "aqua" ] || [ "$installed" = "installed" ] || [ "$kos" = "kos" ]; then
 	echo "Compiling KOS ..."
 	
 	curl_args=""

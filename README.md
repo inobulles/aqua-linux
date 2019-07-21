@@ -16,6 +16,7 @@ Here is a list of command-line arguments that can be passed to build.sh and how 
 ### kos
 Compile the KOS.
 Note that the KOS will always be compiled if an executable named `aqua` is not present in the current directory.
+The KOS will also always be compiled if any previously missing dependencies have been newly installed.
 
 ### update
 Update everything - `git pull` in all the repos.
