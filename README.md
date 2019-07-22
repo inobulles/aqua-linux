@@ -26,9 +26,13 @@ This will update everything in the extensions too (so C compiler will have its l
 Execute the generated `aqua` executable at the end.
 
 ### code
-Compile the code contained in `code/`.
+Compile the code contained in `code/` (or the path defined by the `code-path` argument).
 This takes an argument that defines what language to use. `c` and `asm` are both valid options.
 C code can have multiple files, as long as there is a root `main.c` file. Assembly code can only be one file, named `main.asm`.
+
+### code-path
+Change the path of the code from the default.
+This takes an argument that defines the path of the code to be compiled.
 
 ### example
 Download and run an example from `inobulles/aqua-examples`.

@@ -9,17 +9,19 @@ kos=""
 update=""
 execute=""
 code=""
+code_path="code"
 example=""
 git_prefix="https://github.com"
 
 while test $# -gt 0; do
-	if   [ "$1" = "kos"      ]; then kos="kos"
-	elif [ "$1" = "update"   ]; then update="update"
-	elif [ "$1" = "execute"  ]; then execute="execute"
-	elif [ "$1" = "code"     ]; then code="$2";    shift
-	elif [ "$1" = "example"  ]; then example="$2"; shift
-	elif [ "$1" = "git-ssh"  ]; then git_prefix="ssh://git@github.com"
-	elif [ "$1" = "help"     ]; then cat README.md
+	if   [ "$1" = "kos"       ]; then kos="kos"
+	elif [ "$1" = "update"    ]; then update="update"
+	elif [ "$1" = "execute"   ]; then execute="execute"
+	elif [ "$1" = "code"      ]; then code="$2";      shift
+	elif [ "$1" = "code-path" ]; then code_path="$2"; shift
+	elif [ "$1" = "example"   ]; then example="$2";   shift
+	elif [ "$1" = "git-ssh"   ]; then git_prefix="ssh://git@github.com"
+	elif [ "$1" = "help"      ]; then cat README.md
 	else echo "WARNING Unknown argument '$1' (pass 'help' as an argument to get a list of all arguments)";
 	fi
 	
@@ -247,7 +249,7 @@ if [ "$code" != "" ]; then
 		cp -r examples/$example/* compiler/code
 	else
 		echo "Copying code to compiler ..."
-		cp -r code/* compiler/code
+		cp -r $code_path/* compiler/code
 	fi
 	
 	echo "Compiling code with universal compiler ..."
