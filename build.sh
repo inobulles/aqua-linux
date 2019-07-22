@@ -30,57 +30,105 @@ echo "Creating code directory ..."
 mkdir -p code
 
 echo "Installing potential missing dependencies ..."
-installed=""
 set +e
 
+if [ "`command -v gcc`" = "" ] || [ "`command -v g++`" = "" ]; then
+	echo "Installing GCC and G++ ..."
+	
+	if [ "`command -v apt`" != "" ]; then
+		sudo apt-get install -y gcc
+		sudo apt-get install -y g++
+	elif [ "`command -v yum`" != "" ]; then
+		sudo yum install -y gcc
+		sudo yum install -y gcc-c++
+	else
+		echo "WARNING Platform not supported for installing GCC"
+		exit 1
+	fi
+fi
+if [ "`command -v git`" = "" ]; then
+	echo "Installing Git ..."
+	
+	if [ "`command -v apt`" != "" ]; then
+		sudo apt-get install -y git
+	elif [ "`command -v yum`" != "" ]; then
+		sudo yum install -y git
+	else
+		rm -rf install-dump
+		mkdir -p install-dump
+		cd install-dump
+		
+		wget https://github.com/git/git/archive/v2.17.1.tar.gz
+		tar -xzvf v2.17.1.tar.gz
+		cd git-2.17.1
+		
+		make configure
+		./configure --prefix=/usr
+		make all
+		sudo make install
+		
+		cd ../..
+		rm -rf install-dump
+	fi
+fi
 ld -lcurl >/dev/null 2>&1 || {
 	echo "Installing CURL ..."
-	installed="installed"
 	
-	rm -rf install-dump
-	mkdir -p install-dump
-	cd install-dump
-	
-	wget https://curl.haxx.se/download/curl-7.65.3.tar.gz
-	tar -xvf curl-7.65.3.tar.gz
-	cd curl-7.65.3
-	
-	./configure
-	make
-	sudo make install
-	
-	cd ..
-	rm -rf install-dump
+	if [ "`command -v apt`" != "" ]; then
+		sudo apt-get install -y libcurl4-openssl-dev
+	elif [ "`command -v yum`" != "" ]; then
+		sudo yum install -y libcurl-devel
+	else
+		rm -rf install-dump
+		mkdir -p install-dump
+		cd install-dump
+		
+		wget https://curl.haxx.se/download/curl-7.65.3.tar.gz
+		tar -xvf curl-7.65.3.tar.gz
+		cd curl-7.65.3.tar.gz
+		
+		./configure --with-ssl
+		make
+		sudo make install
+		
+		cd ../..
+		rm -rf install-dump
+	fi
 }
 ld -lSDL2 >/dev/null 2>&1 || {
 	echo "Installing SDL2 ..."
-	installed="installed"
 	
-	rm -rf install-dump
-	mkdir -p install-dump
-	cd install-dump
-	
-	git clone https://github.com/spurious/SDL-mirror
-	cd SDL-mirror
-	mkdir -p build
-	cd build
-	
-	../configure
-	make
-	sudo make install
-	
-	cd ../../..
-	rm -rf install-dump
+	if [ "`command -v apt`" != "" ]; then
+		sudo apt-get install -y libsdl2-2.0-0
+		sudo apt-get install -y libsdl2-dev
+	elif [ "`command -v `yum" != "" ]; then
+		sudo yum install -y SDL2-devel
+	else
+		rm -rf install-dump
+		mkdir -p install-dump
+		cd install-dump
+		
+		git clone https://github.com/spurious/SDL-mirror
+		cd SDL-mirror
+		mkdir -p build
+		cd build
+		
+		../configure
+		make all
+		sudo make install
+		
+		cd ../../..
+		rm -rf install-dump
+	fi
 }
 ld -lGL -lGLU >/dev/null 2>&1 || {
 	echo "Installing MESA (GL and GLU) ..."
-	installed="installed"
 	
-	if [ `command -v apt` != "" ]; then
+	if [ "`command -v apt`" != "" ]; then
 		sudo add-apt-repository -y ppa:ubuntu-x-swat/updates
 		sudo apt-get -y update
 		sudo apt-get -y dist-upgrade
-	elif [ `command -v yum` != "" ]; then
+	elif [ "`command -v yum`" != "" ]; then
 		sudo yum install -y mesa-libGL
 		sudo yum install -y mesa-libGL-devel
 	else
@@ -90,12 +138,11 @@ ld -lGL -lGLU >/dev/null 2>&1 || {
 }
 ld -lmad >/dev/null 2>&1 || {
 	echo "Installing MAD ..."
-	installed="installed"
 	
-	if [ `command -v apt` != "" ]; then
+	if [ "`command -v apt`" != "" ]; then
 		sudo apt-get install -y libmad0
 		sudo apt-get install -y libmad0-dev
-	elif [ `command -v yum` != "" ]; then
+	elif [ "`command -v yum`" != "" ]; then
 		sudo yum install -y libmad
 		sudo yum install -y libmad-devel
 	else
@@ -104,12 +151,11 @@ ld -lmad >/dev/null 2>&1 || {
 }
 ld -lpulse -lpulse-simple >/dev/null 2>&1 || {
 	echo "Installing PulseAudio ..."
-	installed="installed"
 	
-	if [ `command -v apt` != "" ]; then
+	if [ "`command -v apt`" != "" ]; then
 		sudo apt-get install -y libpulse0
 		sudo apt-get install -y libpulse-dev
-	elif [ `command -v yum` != "" ]; then
+	elif [ "`command -v yum`" != "" ]; then
 		sudo yum install -y pulseaudio-libs
 		sudo yum install -y pulseaudio-libs-devel
 	else
@@ -118,10 +164,11 @@ ld -lpulse -lpulse-simple >/dev/null 2>&1 || {
 }
 
 echo "Installing potential missing extensions ..."
+mkdir -p extensions
 
-ld -ldiscord-rpc >/dev/null 2>&1 || {
+ld -L. -l:extensions/libdiscord-rpc.so >/dev/null 2>&1 || {
 	echo "Installing Discord RPC ..."
-	installed="installed"
+	mkdir -p extensions/discord-rpc
 	
 	rm -rf install-dump
 	mkdir -p install-dump
@@ -129,7 +176,7 @@ ld -ldiscord-rpc >/dev/null 2>&1 || {
 	
 	wget https://github.com/discordapp/discord-rpc/releases/download/v3.4.0/discord-rpc-linux.zip
 	unzip discord-rpc-linux.zip
-	sudo mv discord-rpc/linux-dynamic/lib/libdiscord-rpc.so /usr/lib/libdiscord-rpc.so
+	mv discord-rpc/linux-dynamic/lib/libdiscord-rpc.so ../extensions/libdiscord-rpc.so
 	
 	cd ..
 	rm -rf install-dump
@@ -220,7 +267,7 @@ else
 	fi
 fi
 
-if [ ! -f "aqua" ] || [ "$installed" = "installed" ] || [ "$kos" = "kos" ]; then
+if [ ! -f "aqua" ] || [ "$kos" = "kos" ]; then
 	echo "Compiling KOS ..."
 	
 	curl_args=""
@@ -229,7 +276,7 @@ if [ ! -f "aqua" ] || [ "$installed" = "installed" ] || [ "$kos" = "kos" ]; then
 	
 	curl_link="-lcurl"
 	audio_link="-lmad -lpulse -lpulse-simple"
-	discord_link="-ldiscord-rpc"
+	discord_link="-L. -l:extensions/libdiscord-rpc.so"
 	
 	set +e
 	
