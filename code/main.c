@@ -19,7 +19,7 @@ bool main(void) {
 	ui_element_t subtitle;
 	new_ui_element(&subtitle, &ui);
 	ui_element_context_add_element(&context, &subtitle, UI_ELEMENT_CONTEXT_ROLE_SUBTITLE, true, true);
-	ui_element_add_text(&subtitle, ui.fonts[UI_FONT_SUBTITLE], "WA /// You have created an AQUA development environment successfully!", CENTER);
+	ui_element_add_text(&subtitle, ui.fonts[UI_FONT_SUBTITLE], "You have created an AQUA development environment successfully!", CENTER);
 	
 	ui_element_t paragraph;
 	new_ui_element(&paragraph, &ui);
