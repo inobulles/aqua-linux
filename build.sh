@@ -294,6 +294,7 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 		-Wno-maybe-uninitialized -Wno-unused-result -Wno-unused-variable -Wno-unused-but-set-variable -Wno-main \
 		-lSDL2 -lGL -lGLU -lm -lpthread \
 		$curl_args $audio_args $discord_args
+	rm a.out
 fi
 
 if [ "$execute" = "execute" ]; then
