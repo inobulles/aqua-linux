@@ -37,9 +37,10 @@ This takes an argument that defines the path of the code to be compiled.
 ### example
 Download and run an example from `inobulles/aqua-examples`.
 This takes an argument that defines the name of the example to use.
-If compiled with the `code` argument, this will compile from source.
+If run with the `code` argument, this will compile from source.
 Else, it will use the `rom.zed` file contained in the example folder as a ROM.
 Note that the `code` argument still needs its language argument, if compiling from source.
+Also note that the newly compiled `rom.zed` file will be placed back in the example directory if run with the `code` argument.
 
 ### git-ssh
 Use SSH link as origin for cloning git repos.
