@@ -267,7 +267,7 @@ else
 	fi
 fi
 
-if [ ! -f "aqua" ] || [ "$kos" = "kos" ]; then
+if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 	echo "Compiling KOS ..."
 	
 	curl_args=""
