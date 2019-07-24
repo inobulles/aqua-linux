@@ -252,6 +252,10 @@ if [ "$code" != "" ]; then
 		cp -r $code_path/* compiler/code
 	fi
 	
+	echo "Moving perm/ from compiler to root/perm/development/ ..."
+	rm -rf root/perm/development
+	mv compiler/code/perm root/perm/development
+	
 	echo "Compiling code with universal compiler ..."
 	cd compiler
 	sh build.sh git-prefix $git_prefix $update code $code
