@@ -252,9 +252,11 @@ if [ "$code" != "" ]; then
 		cp -r $code_path/* compiler/code
 	fi
 	
-	echo "Moving perm/ from compiler to root/perm/development/ ..."
-	rm -rf root/perm/development
-	mv compiler/code/perm root/perm/development
+	if [ -f "compiler/code/perm" ]; then
+		echo "Moving perm/ from compiler to root/perm/development/ ..."
+		rm -rf root/perm/development
+		mv compiler/code/perm root/perm/development
+	fi
 	
 	echo "Compiling code with universal compiler ..."
 	cd compiler
