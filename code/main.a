@@ -1,8 +1,5 @@
-print ( "Original\n" ) ;
-
-if ( 5 + 5 ) {
-	if ( 5 - 5 ) {
-		print ( "test"\n ) ;
-	}
-	print ( "Hello world!\n" ) ;
+func main {
+	
 }
+
+main ( ) ;
