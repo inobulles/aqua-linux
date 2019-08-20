@@ -184,6 +184,8 @@ ld -L. -l:extensions/libdiscord-rpc.so >/dev/null 2>&1 || {
 	rm -rf install-dump
 }
 
+rm a.out
+
 set -e
 echo "Downloading potential missing folders ..."
 
