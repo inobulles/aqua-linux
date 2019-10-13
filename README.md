@@ -25,6 +25,10 @@ This will update everything in the extensions too (so C compiler will have its l
 ### execute
 Execute the generated `aqua` executable at the end.
 
+### vsync
+Compile the KOS with the `KOS_ENABLE_VSYNC` flag set.
+Note that this only works when the KOS is compiled too (so the `kos` flag is also needed).
+
 ### code
 Compile the code contained in `code/` (or the path defined by the `code-path` argument).
 This takes an argument that defines what language to use. `c` and `asm` are both valid options.

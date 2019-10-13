@@ -8,6 +8,7 @@ echo "Parsing arguments ..."
 kos=""
 update=""
 execute=""
+vsync="0"
 code=""
 code_path="code"
 example=""
@@ -17,6 +18,7 @@ while test $# -gt 0; do
 	if   [ "$1" = "kos"       ]; then kos="kos"
 	elif [ "$1" = "update"    ]; then update="update"
 	elif [ "$1" = "execute"   ]; then execute="execute"
+	elif [ "$1" = "vsync"     ]; then vsync="1"
 	elif [ "$1" = "code"      ]; then code="$2";      shift
 	elif [ "$1" = "code-path" ]; then code_path="$2"; shift
 	elif [ "$1" = "example"   ]; then example="$2";   shift
@@ -297,8 +299,8 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 	set -e
 	
 	rm -f aqua
-	gcc kos/glue.c -o aqua -std=gnu99 -O -Wall -no-pie \
-		-DKOS_CURRENT=KOS_DESKTOP \
+	gcc kos/glue.c -o aqua -std=gnu99 -Wall -no-pie \
+		-DKOS_CURRENT=KOS_DESKTOP -DKOS_ENABLE_VSYNC=$vsync \
 		-Wno-maybe-uninitialized -Wno-unused-result -Wno-unused-variable -Wno-unused-but-set-variable -Wno-main \
 		-lSDL2 -lGL -lGLU -lm -lpthread \
 		$curl_args $audio_args $discord_args
