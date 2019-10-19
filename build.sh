@@ -1,6 +1,6 @@
 
 #!/bin/sh
-set -e;
+set -e
 
 echo "AQUA Linux builder"
 echo "Parsing arguments ..."
@@ -256,7 +256,9 @@ if [ "$code" != "" ]; then
 		cp -r $code_path/* compiler/code
 	fi
 	
-	if [ -f "compiler/code/perm" ]; then
+	ls compiler/code/perm
+	
+	if [ -d "compiler/code/perm" ]; then
 		echo "Moving perm/ from compiler to root/perm/development/ ..."
 		rm -rf root/perm/development
 		mv compiler/code/perm root/perm/development
