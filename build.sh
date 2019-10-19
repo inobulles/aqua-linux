@@ -266,7 +266,9 @@ if [ "$code" != "" ]; then
 	cd compiler
 	sh build.sh git-prefix $git_prefix $update code $code
 	cd ..
+	
 	mv compiler/rom.zed rom.zed
+	mv compiler/rom.asm rom.asm
 	
 	if [ "$example" != "" ]; then
 		echo "Copying generated ROM file to example folder ..."
