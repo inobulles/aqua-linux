@@ -29,6 +29,14 @@ Execute the generated `aqua` executable at the end.
 Compile the KOS with the `KOS_ENABLE_VSYNC` flag set.
 Note that this only works when the KOS is compiled too (so the `kos` flag is also needed).
 
+### width
+Compile the KOS with a certain video width.
+This takes an argument that defines the value of the width of the screen to compile the KOS with.
+Note that this only works when the KOS is compiled too (so the `kos` flag is also needed).
+
+### height
+Same as width, but for video height.
+
 ### code
 Compile the code contained in `code/` (or the path defined by the `code-path` argument).
 This takes an argument that defines what language to use. `c` and `asm` are both valid options.
