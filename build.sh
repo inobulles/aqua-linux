@@ -260,8 +260,6 @@ if [ "$code" != "" ]; then
 		cp -r $code_path/* compiler/code
 	fi
 	
-	ls compiler/code/perm
-	
 	if [ -d "compiler/code/perm" ]; then
 		echo "Moving perm/ from compiler to root/perm/development/ ..."
 		rm -rf root/perm/development
@@ -302,7 +300,7 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 	
 	ld $curl_link    >/dev/null 2>&1 && curl_args="-D__HAS_CURL $curl_link"
 	ld $audio_link   >/dev/null 2>&1 && audio_args="-D__HAS_AUDIO $audio_link"
-	ld $discord_link >/dev/null 2>&1 && discord_args="-D__HAS_DISCORD $discord_link"
+	#~ ld $discord_link >/dev/null 2>&1 && discord_args="-D__HAS_DISCORD $discord_link"
 	
 	set -e
 	
