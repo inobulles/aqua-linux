@@ -1,0 +1,78 @@
+
+//~ class Test {
+	//~ class Inner {
+		//~ byte[5] test;
+	//~ }
+	
+	//~ func test {
+		//~ print "Uw " ++ str(Inner) ++ " broer\n";
+		
+		//~ var y = 5;
+		//~ return y;
+	//~ }
+//~ }
+
+//~ class Inner {
+	//~ byte[7] test;
+//~ }
+
+//~ var y = 1;
+//~ var test = 3;
+
+//~ print "\nfunc       = " ++ str(Test.test()) ++ "\n";
+//~ print "y          = " ++ str(y) ++ "\n";
+//~ print "test       = " ++ str(test) ++ "\n";
+//~ print "Test.Inner = " ++ str(Test.Inner) ++ "\n";
+//~ print "Inner      = " ++ str(Inner) ++ "\n\n";
+
+//~ return y + test == 4 && Test.Inner == 5;
+
+
+
+
+import lib/video.a
+import lib/events.a
+import lib/devices/input/joystick.a
+import lib/loaders/ivx.a
+import lib/loaders/bmp.a
+import lib/devices/gl/camera.a
+import lib/devices/gl/batch.a
+
+Texture.sharp 0;
+
+Texture->var texture = Bmp.create_texture("perm/skybattle/levels/city/level.bmp");
+//~ texture.destruct();
+
+Ivx->var model = new(Ivx).construct("perm/skybattle/levels/city/level.ivx");
+print "Model name " ++ &model.meta.name ++ "\n";
+
+Gl_batch->var batch = new(Gl_batch).construct();
+batch.add_ivx model;
+batch.set_texture texture;
+
+print "There are " ++ str(Joystick.count()) ++ " joysticks\n";
+
+Joystick->var joystick = new(Joystick).construct(0);
+print "Joystick id = " ++ str(joystick.id) ++ ", name = " ++ joystick.name() ++ "\n";
+
+var events = new(Events);
+
+var x = 0;
+Gl_camera.frustum -60220 * video_width() / video_height(), 60220 * video_width() / video_height(), -60220, 60220, 100000, 500000000;
+
+loop {
+	Video.clear 0, 0, 0;
+	
+	Gl_camera.load_identity();
+	Gl_camera.translate 0, -500000, -3000000;
+	Gl_camera.rotate_2d x, 0;
+	Gl_camera.scale 50000, 50000, 50000;
+	x = x + 500;
+	
+	batch.draw();
+	Video.flip();
+	//print "FPS: " ++ str(Video.fps()) ++ "\n";
+	
+	events.get();
+	if (events.quit) break
+}
