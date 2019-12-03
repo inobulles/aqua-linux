@@ -37,6 +37,10 @@ Note that this only works when the KOS is compiled too (so the `kos` flag is als
 ### height
 Same as width, but for video height.
 
+### msaax
+Set the multisampling amount in the KOS to the following argument.
+Note that this may not work with all KOS's, and some may not support some values.
+
 ### code
 Compile the code contained in `code/` (or the path defined by the `code-path` argument).
 This takes an argument that defines what language to use. `c` and `asm` are both valid options.

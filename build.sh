@@ -8,6 +8,7 @@ echo "Parsing arguments ..."
 kos=""
 update=""
 execute=""
+msaa="0"
 vsync="0"
 width="800"
 height="480"
@@ -21,6 +22,7 @@ while test $# -gt 0; do
 	elif [ "$1" = "update"    ]; then update="update"
 	elif [ "$1" = "execute"   ]; then execute="execute"
 	elif [ "$1" = "vsync"     ]; then vsync="1"
+	elif [ "$1" = "msaax"     ]; then msaa="$2";      shift
 	elif [ "$1" = "width"     ]; then width="$2";     shift
 	elif [ "$1" = "height"    ]; then height="$2";    shift
 	elif [ "$1" = "code"      ]; then code="$2";      shift
@@ -306,7 +308,7 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 	
 	rm -f aqua
 	gcc kos/glue.c -o aqua -std=gnu99 -Wall -no-pie \
-		-DKOS_CURRENT=KOS_DESKTOP -DKOS_ENABLE_VSYNC=$vsync -DKOS_ORIGINAL_WIDTH=$width -DKOS_ORIGINAL_HEIGHT=$height \
+		-DKOS_CURRENT=KOS_DESKTOP -DKOS_ENABLE_VSYNC=$vsync -DKOS_ORIGINAL_WIDTH=$width -DKOS_ORIGINAL_HEIGHT=$height -DKOS_MSAA=$msaa \
 		-Wno-maybe-uninitialized -Wno-unused-result -Wno-unused-variable -Wno-unused-but-set-variable -Wno-main \
 		-lSDL2 -lGL -lGLU -lm -lpthread \
 		$curl_args $audio_args $discord_args

@@ -1,4 +1,41 @@
 
+import lib/video.a
+import lib/loaders/ivx.a
+import lib/devices/gl/camera.a
+import lib/devices/gl/batch.a
+import lib/loaders/bmp.a
+
+Ivx->var model = new(Ivx).construct("perm/development/tutorial.ivx");
+print "Model name " ++ &model.meta.name ++ "\n";
+
+Texture.sharp 0;
+Texture->var dark_texture = Bmp.create_texture("perm/development/dark.bmp");
+
+Gl_batch->var batch = new(Gl_batch).construct();
+batch.add_ivx model;
+batch.set_texture dark_texture;
+
+Gl_camera.frustum -60220 * video_width() / video_height(), 60220 * video_width() / video_height(), -60220, 60220, 100000, 500000000;
+var x = 0;
+
+loop {
+	Video.clear 2 * 60 * (0xFFFFFFFFFFFFFFFF / 256), 2 * 60 * (0xFFFFFFFFFFFFFFFF / 256), 2 * 60 * (0xFFFFFFFFFFFFFFFF / 256);
+	
+	Gl_camera.load_identity();
+	Gl_camera.translate 0, 0, -3000000;
+	Gl_camera.rotate_2d x, -FLOAT_TAU / 24;
+	Gl_camera.scale 200000, 200000, 200000;
+	
+	x = x + 2000;
+	var fps = Video.fps() + 1;
+	
+	if (x > 2000000) break
+	
+	batch.draw();
+	Video.flip();
+}
+
+/*
 //~ class Test {
 	//~ class Inner {
 		//~ byte[5] test;
@@ -75,4 +112,4 @@ loop {
 	
 	events.get();
 	if (events.quit) break
-}
+}*/
