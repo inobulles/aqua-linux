@@ -317,6 +317,16 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 	rm a.out
 fi
 
+if [ "$package" = "package" ]; then
+	echo "Packaging app ..."
+	mkdir package
+	cp rom.zed package/rom.zed
+	mkdir -p package/perm
+	cp -r root/perm/development/* package/perm/
+	tar -cf package.zpk package
+	rm -rf package
+fi
+
 if [ "$execute" = "execute" ]; then
 	if [ ! -f "rom.zed" ]; then
 		echo "ROM file does not exist, unpacking package.zpk ..."
@@ -333,16 +343,6 @@ if [ "$execute" = "execute" ]; then
 	
 	echo "Executing KOS ..."
 	./aqua
-fi
-
-if [ "$package" = "package" ]; then
-	echo "Packaging app ..."
-	mkdir package
-	cp rom.zed package/rom.zed
-	mkdir -p package/perm
-	cp -r root/perm/development/* package/perm/
-	tar -cf package.zpk package
-	rm -rf package
 fi
 
 echo "AQUA Linux builder terminated with no errors"
