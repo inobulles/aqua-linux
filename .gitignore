@@ -6,5 +6,7 @@ extensions
 aqua
 rom.zed
 rom.asm
+app.zpk
 a.out
 install-dump
+package

@@ -8,6 +8,7 @@ echo "Parsing arguments ..."
 kos=""
 update=""
 execute=""
+package=""
 msaa="0"
 vsync="0"
 width="800"
@@ -21,6 +22,7 @@ while test $# -gt 0; do
 	if   [ "$1" = "kos"       ]; then kos="kos"
 	elif [ "$1" = "update"    ]; then update="update"
 	elif [ "$1" = "execute"   ]; then execute="execute"
+	elif [ "$1" = "package"   ]; then package="package"
 	elif [ "$1" = "vsync"     ]; then vsync="1"
 	elif [ "$1" = "msaax"     ]; then msaa="$2";      shift
 	elif [ "$1" = "width"     ]; then width="$2";     shift
@@ -318,6 +320,16 @@ fi
 if [ "$execute" = "execute" ]; then
 	echo "Executing KOS ..."
 	./aqua
+fi
+
+if [ "$package" = "package" ]; then
+	echo "Packaging app ..."
+	mkdir package
+	cp rom.zed package/rom.zed
+	mkdir -p package/perm
+	cp -r root/perm/development/* package/perm/
+	tar -cf package.zpk package
+	rm -rf package
 fi
 
 echo "AQUA Linux builder terminated with no errors"

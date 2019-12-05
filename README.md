@@ -25,6 +25,9 @@ This will update everything in the extensions too (so C compiler will have its l
 ### execute
 Execute the generated `aqua` executable at the end.
 
+### package
+Generate a ZED package file `package.zpk` with the `rom.zed` file and the `perm` resources in `root/perm/development`.
+
 ### vsync
 Compile the KOS with the `KOS_ENABLE_VSYNC` flag set.
 Note that this only works when the KOS is compiled too (so the `kos` flag is also needed).
@@ -43,8 +46,9 @@ Note that this may not work with all KOS's, and some may not support some values
 
 ### code
 Compile the code contained in `code/` (or the path defined by the `code-path` argument).
-This takes an argument that defines what language to use. `c` and `asm` are both valid options.
-C code can have multiple files, as long as there is a root `main.c` file. Assembly code can only be one file, named `main.asm`.
+This takes an argument that defines what language to use. `amber` and `asm` are both valid options.
+Amber code can have multiple files, as long as there is a root `main.a` file. Assembly code can only be one file, named `main.asm`.
+The output will be a ZED ROM file located at `rom.zed`, and a ZASM file located at `rom.asm`.
 
 ### code-path
 Change the path of the code from the default.
