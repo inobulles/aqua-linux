@@ -24,6 +24,7 @@ This will update everything in the extensions too (so C compiler will have its l
 
 ### execute
 Execute the generated `aqua` executable at the end.
+This will run the `rom.zed` ROM if it exists, else it'll unpack `package.zpk` and run it.
 
 ### package
 Generate a ZED package file `package.zpk` with the `rom.zed` file and the `perm` resources in `root/perm/development`.

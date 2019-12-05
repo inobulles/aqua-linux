@@ -318,6 +318,19 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 fi
 
 if [ "$execute" = "execute" ]; then
+	if [ ! -f "rom.zed" ]; then
+		echo "ROM file does not exist, unpacking package.zpk ..."
+		tar -xf package.zpk
+		mv package/rom.zed rom.zed
+		
+		rm -rf root/perm/development/*
+		mkdir -p root/perm
+		mkdir -p root/perm/development
+		mv package/perm/* root/perm/development/
+		
+		rm -rf package
+	fi
+	
 	echo "Executing KOS ..."
 	./aqua
 fi
