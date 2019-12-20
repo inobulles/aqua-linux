@@ -267,7 +267,7 @@ if [ "$code" != "" ]; then
 	if [ -d "compiler/code/perm" ]; then
 		echo "Moving perm/ from compiler to root/perm/development/ ..."
 		rm -rf root/perm/development
-		mkdir -p root/perm/development
+		mkdir -p root/perm
 		mv compiler/code/perm root/perm/development
 	fi
 	
