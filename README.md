@@ -14,13 +14,13 @@ $ sh build.sh execute code c # compile and execute the C code in code/
 Here is a list of command-line arguments that can be passed to build.sh and how to use them.
 
 ### kos
-Compile the KOS.
+Compile the KOS and all the devices in `devices-source`.
 Note that the KOS will always be compiled if an executable named `aqua` is not present in the current directory.
 The KOS will also always be compiled if any previously missing dependencies have been newly installed.
 
 ### update
 Update everything - `git pull` in all the repos.
-This will update everything in the extensions too (so C compiler will have its library updated).
+This will update everything in the extensions too (so the Amber compiler will have its library updated).
 
 ### execute
 Execute the generated `aqua` executable at the end.
