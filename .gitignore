@@ -1,8 +1,9 @@
 kos
+devices-source
 root
 compiler
 examples
-extensions
+devices
 aqua
 rom.zed
 rom.asm

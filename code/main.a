@@ -1,115 +1,60 @@
 
 import lib/video.a
-import lib/loaders/ivx.a
-import lib/devices/gl/camera.a
-import lib/devices/gl/batch.a
-import lib/loaders/bmp.a
+import lib/events.a
+import lib/device.a
+import lib/math.a
 
-Ivx->var model = new(Ivx).construct("perm/development/tutorial.ivx");
-print "Model name " ++ &model.meta.name ++ "\n";
+import lib/devices/input/mouse.a
+import lib/devices/input/joystick.a
+import lib/devices/io/fs.a
 
-Texture.sharp 0;
-Texture->var dark_texture = Bmp.create_texture("perm/development/dark.bmp");
+import lib/devices/graphics/surface.a
 
-Gl_batch->var batch = new(Gl_batch).construct();
-batch.add_ivx model;
-batch.set_texture dark_texture;
+var data;
+var bytes;
 
-Gl_camera.frustum -60220 * video_width() / video_height(), 60220 * video_width() / video_height(), -60220, 60220, 100000, 500000000;
-var x = 0;
-
-loop {
-	Video.clear 2 * 60 * (0xFFFFFFFFFFFFFFFF / 256), 2 * 60 * (0xFFFFFFFFFFFFFFFF / 256), 2 * 60 * (0xFFFFFFFFFFFFFFFF / 256);
-	
-	Gl_camera.load_identity();
-	Gl_camera.translate 0, 0, -3000000;
-	Gl_camera.rotate_2d x, -FLOAT_TAU / 24;
-	Gl_camera.scale 200000, 200000, 200000;
-	
-	x = x + 2000;
-	var fps = Video.fps() + 1;
-	
-	if (x > 2000000) break
-	
-	batch.draw();
-	Video.flip();
+if (Fs.read("root/bird.png", &data, &bytes)) {
+	print "Failed to read\n";
 }
 
-/*
-//~ class Test {
-	//~ class Inner {
-		//~ byte[5] test;
-	//~ }
-	
-	//~ func test {
-		//~ print "Uw " ++ str(Inner) ++ " broer\n";
-		
-		//~ var y = 5;
-		//~ return y;
-	//~ }
-//~ }
+var result = Device.send("png", 0x64, data, bytes);
 
-//~ class Inner {
-	//~ byte[7] test;
-//~ }
+var bitmap = ?(result + 00);
+var bit_depth = ?(result + 08);
+var width = ?(result + 16);
+var height = ?(result + 24);
 
-//~ var y = 1;
-//~ var test = 3;
+Texture.filter(0x52);
+Texture->var texture = new(Texture).construct(bitmap, bit_depth, width, height);
+mfree data, bytes;
 
-//~ print "\nfunc       = " ++ str(Test.test()) ++ "\n";
-//~ print "y          = " ++ str(y) ++ "\n";
-//~ print "test       = " ++ str(test) ++ "\n";
-//~ print "Test.Inner = " ++ str(Test.Inner) ++ "\n";
-//~ print "Inner      = " ++ str(Inner) ++ "\n\n";
-
-//~ return y + test == 4 && Test.Inner == 5;
+Surface->var surface = new(Surface).construct();
+surface.texture texture;
 
 
 
 
-import lib/video.a
-import lib/events.a
-import lib/devices/input/joystick.a
-import lib/loaders/ivx.a
-import lib/loaders/bmp.a
-import lib/devices/gl/camera.a
-import lib/devices/gl/batch.a
+print "Count " ++ str(Joystick.count()) ++ "\n";
 
-Texture.sharp 0;
+Joystick->var joystick = new(Joystick).construct(1);
+print "Joystick " ++ joystick.name() ++ "\n";
 
-Texture->var texture = Bmp.create_texture("perm/skybattle/levels/city/level.bmp");
-//~ texture.destruct();
+Mouse->var mouse = new(Mouse).construct(0);
+print "Mouse " ++ mouse.name() ++ "\n";
 
-Ivx->var model = new(Ivx).construct("perm/skybattle/levels/city/level.ivx");
-print "Model name " ++ &model.meta.name ++ "\n";
-
-Gl_batch->var batch = new(Gl_batch).construct();
-batch.add_ivx model;
-batch.set_texture texture;
-
-print "There are " ++ str(Joystick.count()) ++ " joysticks\n";
-
-Joystick->var joystick = new(Joystick).construct(0);
-print "Joystick id = " ++ str(joystick.id) ++ ", name = " ++ joystick.name() ++ "\n";
+print "Sinh 1.234567: " ++ str(?Device.send("math", 0x686E6973, 1234567)) ++ "\n";
+print "Hello world, video_width = " ++ str(video_width()) ++ ", video_height = " ++ str(video_height()) ++ "\n";
 
 var events = new(Events);
 
-var x = 0;
-Gl_camera.frustum -60220 * video_width() / video_height(), 60220 * video_width() / video_height(), -60220, 60220, 100000, 500000000;
-
 loop {
-	Video.clear 0, 0, 0;
-	
-	Gl_camera.load_identity();
-	Gl_camera.translate 0, -500000, -3000000;
-	Gl_camera.rotate_2d x, 0;
-	Gl_camera.scale 50000, 50000, 50000;
-	x = x + 500;
-	
-	batch.draw();
+	Video.clear Math.abs(mouse.axis(0)), Math.abs(mouse.axis(1)), mouse.axis(2) / 2 + 500000, 1000000;
+	surface.scroll Math.abs(joystick.axis(0)) * 2, Math.abs(joystick.axis(1)) * 2, Math.abs(joystick.axis(2)) * 2, Math.abs(joystick.axis(3)) * 2;
+	surface.draw 0, 0, 0;
 	Video.flip();
-	//print "FPS: " ++ str(Video.fps()) ++ "\n";
 	
 	events.get();
 	if (events.quit) break
-}*/
+}
+
+return 1337;

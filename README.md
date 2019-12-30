@@ -29,8 +29,8 @@ This will run the `rom.zed` ROM if it exists, else it'll unpack `package.zpk` an
 ### package
 Generate a ZED package file `package.zpk` with the `rom.zed` file and the `perm` resources in `root/perm/development`.
 
-### vsync
-Compile the KOS with the `KOS_ENABLE_VSYNC` flag set.
+### no-vsync
+Compile the KOS with the `KOS_VSYNC` flag set to 0.
 Note that this only works when the KOS is compiled too (so the `kos` flag is also needed).
 
 ### width

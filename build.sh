@@ -10,7 +10,7 @@ update=""
 execute=""
 package=""
 msaa="0"
-vsync="0"
+vsync="1"
 width="800"
 height="480"
 code=""
@@ -23,7 +23,7 @@ while test $# -gt 0; do
 	elif [ "$1" = "update"    ]; then update="update"
 	elif [ "$1" = "execute"   ]; then execute="execute"
 	elif [ "$1" = "package"   ]; then package="package"
-	elif [ "$1" = "vsync"     ]; then vsync="1"
+	elif [ "$1" = "no-vsync"  ]; then vsync="0"
 	elif [ "$1" = "msaax"     ]; then msaa="$2";      shift
 	elif [ "$1" = "width"     ]; then width="$2";     shift
 	elif [ "$1" = "height"    ]; then height="$2";    shift
@@ -83,30 +83,6 @@ if [ "`command -v git`" = "" ]; then
 		rm -rf install-dump
 	fi
 fi
-ld -lcurl >/dev/null 2>&1 || {
-	echo "Installing CURL ..."
-	
-	if [ "`command -v apt`" != "" ]; then
-		sudo apt-get install -y libcurl4-openssl-dev
-	elif [ "`command -v yum`" != "" ]; then
-		sudo yum install -y libcurl-devel
-	else
-		rm -rf install-dump
-		mkdir -p install-dump
-		cd install-dump
-		
-		wget https://curl.haxx.se/download/curl-7.65.3.tar.gz
-		tar -xvf curl-7.65.3.tar.gz
-		cd curl-7.65.3.tar.gz
-		
-		./configure --with-ssl
-		make
-		sudo make install
-		
-		cd ../..
-		rm -rf install-dump
-	fi
-}
 ld -lSDL2 >/dev/null 2>&1 || {
 	echo "Installing SDL2 ..."
 	
@@ -148,56 +124,11 @@ ld -lGL -lGLU >/dev/null 2>&1 || {
 		exit 1
 	fi
 }
-ld -lmad >/dev/null 2>&1 || {
-	echo "Installing MAD ..."
-	
-	if [ "`command -v apt`" != "" ]; then
-		sudo apt-get install -y libmad0
-		sudo apt-get install -y libmad0-dev
-	elif [ "`command -v yum`" != "" ]; then
-		sudo yum install -y libmad
-		sudo yum install -y libmad-devel
-	else
-		echo "WARNING Platform not supported for installing the MAD library"
-	fi
-}
-ld -lpulse -lpulse-simple >/dev/null 2>&1 || {
-	echo "Installing PulseAudio ..."
-	
-	if [ "`command -v apt`" != "" ]; then
-		sudo apt-get install -y libpulse0
-		sudo apt-get install -y libpulse-dev
-	elif [ "`command -v yum`" != "" ]; then
-		sudo yum install -y pulseaudio-libs
-		sudo yum install -y pulseaudio-libs-devel
-	else
-		echo "WARNING Platform not supported for installing the PulseAudio library"
-	fi
-}
-
-echo "Installing potential missing extensions ..."
-mkdir -p extensions
-
-ld -L. -l:extensions/libdiscord-rpc.so >/dev/null 2>&1 || {
-	echo "Installing Discord RPC ..."
-	mkdir -p extensions/discord-rpc
-	
-	rm -rf install-dump
-	mkdir -p install-dump
-	cd install-dump
-	
-	wget https://github.com/discordapp/discord-rpc/releases/download/v3.4.0/discord-rpc-linux.zip
-	unzip discord-rpc-linux.zip
-	mv discord-rpc/linux-dynamic/lib/libdiscord-rpc.so ../extensions/libdiscord-rpc.so
-	
-	cd ..
-	rm -rf install-dump
-}
 
 rm a.out
 
 set -e
-echo "Downloading potential missing folders ..."
+echo "Downloading potential missing components ..."
 
 if [ ! -d "kos" ]; then
 	git clone $git_prefix/inobulles/aqua-kos --depth 1 -b master
@@ -214,6 +145,11 @@ if [ ! -d "root" ]; then
 	mv aqua-root root
 fi
 
+if [ ! -d "devices-source" ]; then
+	git clone $git_prefix/inobulles/aqua-devices --depth 1 -b master
+	mv aqua-devices devices-source
+fi
+
 if [ "$update" = "update" ]; then
 	echo "Updating components ..."
 	
@@ -223,7 +159,9 @@ if [ "$update" = "update" ]; then
 	git pull origin master
 	cd ../../root
 	git pull origin master
-	cd ..
+	cd ../devices-source
+	git pull origin master
+	cd  ..
 fi
 
 if [ "$example" != "" ]; then
@@ -291,31 +229,29 @@ else
 fi
 
 if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
+	echo "Compiling devices ..."
+	
+	rm -rf devices
+	mkdir -p devices
+	
+	(
+		cd devices-source
+		for path in `find . -maxdepth 1 -type d -not -name "*git*" | tail -n +2`; do
+			(
+				cd $path
+				sh build.sh
+				mv device ../../devices/$path
+			)
+		done
+	)
+	
 	echo "Compiling KOS ..."
-	
-	curl_args=""
-	audio_args=""
-	discord_args=""
-	
-	curl_link="-lcurl"
-	audio_link="-lmad -lpulse -lpulse-simple"
-	discord_link="-L. -l:extensions/libdiscord-rpc.so"
-	
-	set +e
-	
-	ld $curl_link    >/dev/null 2>&1 && curl_args="-D__HAS_CURL $curl_link"
-	ld $audio_link   >/dev/null 2>&1 && audio_args="-D__HAS_AUDIO $audio_link"
-	#~ ld $discord_link >/dev/null 2>&1 && discord_args="-D__HAS_DISCORD $discord_link"
-	
-	set -e
 	
 	rm -f aqua
 	gcc kos/glue.c -o aqua -std=gnu99 -Wall -no-pie \
-		-DKOS_CURRENT=KOS_DESKTOP -DKOS_ENABLE_VSYNC=$vsync -DKOS_ORIGINAL_WIDTH=$width -DKOS_ORIGINAL_HEIGHT=$height -DKOS_MSAA=$msaa \
-		-Wno-maybe-uninitialized -Wno-unused-result -Wno-unused-variable -Wno-unused-but-set-variable -Wno-main \
-		-lSDL2 -lGL -lGLU -lm -lpthread \
-		$curl_args $audio_args $discord_args
-	rm a.out
+		-DKOS_PLATFORM=KOS_PLATFORM_DESKTOP -DKOS_DEVICES_PATH=\"devices/\" -DKOS_VSYNC=$vsync -DKOS_VIDEO_WIDTH=$width -DKOS_VIDEO_HEIGHT=$height -DKOS_MSAA=$msaa \
+		-Wno-parentheses -Wno-maybe-uninitialized -Wno-unused-result -Wno-unused-variable -Wno-unused-but-set-variable -Wno-main \
+		-lSDL2 -lGL -ldl
 fi
 
 if [ "$package" = "package" ]; then
