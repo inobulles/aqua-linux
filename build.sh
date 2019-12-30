@@ -1,7 +1,7 @@
 
 #!/bin/sh
-set -e
-
+set -e 
+ 
 echo "AQUA Linux builder"
 echo "Parsing arguments ..."
 
@@ -205,8 +205,9 @@ if [ "$code" != "" ]; then
 	if [ -d "compiler/code/perm" ]; then
 		echo "Moving perm/ from compiler to root/perm/development/ ..."
 		rm -rf root/perm/development
-		mkdir -p root/perm
-		mv compiler/code/perm root/perm/development
+        mkdir -p root/perm
+		mkdir -p root/perm/development
+		mv compiler/code/perm/* root/perm/development
 	fi
 	
 	echo "Compiling code with universal compiler ..."
