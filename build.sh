@@ -110,7 +110,7 @@ ld -lSDL2 >/dev/null 2>&1 || {
 	fi
 }
 ld -lGL -lGLU >/dev/null 2>&1 || {
-	echo "Installing MESA (GL and GLU) ..."
+	echo "Installing MESA (GL) ..."
 	
 	if [ "`command -v apt`" != "" ]; then
 		sudo add-apt-repository -y ppa:ubuntu-x-swat/updates

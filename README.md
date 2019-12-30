@@ -7,7 +7,7 @@ Here are a few ways you could use `build.sh`.
 ~~~~
 $ sh build.sh update kos execute example avanced/quote-of-the-day # update everything, compile the KOS, use the advanced/quote-of-the-day example's ROM file to execute at the end
 $ sh build.sh execute # simply execute rom.zed without doing anything else
-$ sh build.sh execute code c # compile and execute the C code in code/
+$ sh build.sh execute code amber # compile and execute the Amber code in code/
 ~~~~
 
 ## Command-line arguments
