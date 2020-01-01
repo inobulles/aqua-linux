@@ -130,7 +130,7 @@ rm a.out
 set -e
 echo "Downloading potential missing components ..."
 
-if [ ! -d "kos" ]; then
+( if [ ! -d "kos" ]; then
 	git clone $git_prefix/inobulles/aqua-kos --depth 1 -b master
 	mv aqua-kos kos
 fi
@@ -138,30 +138,47 @@ fi
 if [ ! -d "kos/zvm" ]; then
 	git clone $git_prefix/inobulles/aqua-zvm --depth 1 -b master
 	mv aqua-zvm kos/zvm
-fi
+fi ) &
 
-if [ ! -d "root" ]; then
+( if [ ! -d "root" ]; then
 	git clone $git_prefix/inobulles/aqua-root --depth 1 -b master
 	mv aqua-root root
-fi
+fi ) &
 
-if [ ! -d "devices-source" ]; then
+( if [ ! -d "devices-source" ]; then
 	git clone $git_prefix/inobulles/aqua-devices --depth 1 -b master
 	mv aqua-devices devices-source
-fi
+fi ) &
+
+( if [ "$code" != "" ] && [ ! -d "compiler" ]; then
+	echo "Installing compiler extension ..."
+	git clone $git_prefix/inobulles/aqua-compiler --depth 1 -b master
+	mv aqua-compiler compiler
+fi ) &
+
+wait
 
 if [ "$update" = "update" ]; then
 	echo "Updating components ..."
 	
-	cd kos
-	git pull origin master
-	cd zvm
-	git pull origin master
-	cd ../../root
-	git pull origin master
-	cd ../devices-source
-	git pull origin master
-	cd  ..
+	( cd kos
+	git pull origin master ) &
+	
+	( cd kos/zvm
+	git pull origin master ) &
+	
+	( cd root
+	git pull origin master ) &
+	
+	( cd devices-source
+	git pull origin master ) &
+	
+	( if [ "$code" != "" ]; then
+		cd compiler
+		git pull origin master
+	fi ) &
+	
+	wait
 fi
 
 if [ "$example" != "" ]; then
@@ -178,19 +195,6 @@ if [ "$example" != "" ]; then
 fi
 
 if [ "$code" != "" ]; then
-	if [ ! -d "compiler" ]; then
-		echo "Installing compiler extension ..."
-		git clone $git_prefix/inobulles/aqua-compiler --depth 1 -b master
-		mv aqua-compiler compiler
-	fi
-	
-	if [ "$update" = "update" ]; then
-		echo "Updating compiler extension ..."
-		cd compiler
-		git pull origin master
-		cd ..
-	fi
-	
 	rm -rf compiler/code
 	mkdir -p compiler/code
 	
@@ -245,7 +249,7 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 				mv device ../../devices/$path
 			) & # compiling in parallel!
 		done
-		wait
+		wait # wait for everything to finish compiling
 	)
 	
 	echo "Compiling KOS ..."
