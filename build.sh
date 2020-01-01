@@ -239,11 +239,13 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 		cd devices-source
 		for path in `find . -maxdepth 1 -type d -not -name "*git*" | tail -n +2`; do
 			(
+				echo "Compiling $path device ..."
 				cd $path
 				sh build.sh
 				mv device ../../devices/$path
-			)
+			) & # compiling in parallel!
 		done
+		wait
 	)
 	
 	echo "Compiling KOS ..."
