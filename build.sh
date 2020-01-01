@@ -109,7 +109,7 @@ ld -lSDL2 >/dev/null 2>&1 || {
 		rm -rf install-dump
 	fi
 }
-ld -lGL -lGLU >/dev/null 2>&1 || {
+ld -lGL >/dev/null 2>&1 || {
 	echo "Installing MESA (GL) ..."
 	
 	if [ "`command -v apt`" != "" ]; then
