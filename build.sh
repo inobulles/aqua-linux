@@ -234,6 +234,13 @@ else
 fi
 
 if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
+	echo "Compiling KOS ..."
+	
+	rm -f aqua
+	gcc kos/glue.c -o aqua -std=gnu99 -no-pie \
+		-DKOS_PLATFORM=KOS_PLATFORM_DESKTOP -DKOS_DEVICES_PATH=\"devices/\" -DKOS_VSYNC=$vsync -DKOS_VIDEO_WIDTH=$width -DKOS_VIDEO_HEIGHT=$height -DKOS_MSAA=$msaa \
+		-lSDL2 -lGL -ldl &
+	
 	echo "Compiling devices ..."
 	
 	rm -rf devices
@@ -251,14 +258,6 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 		done
 		wait # wait for everything to finish compiling
 	)
-	
-	echo "Compiling KOS ..."
-	
-	rm -f aqua
-	gcc kos/glue.c -o aqua -std=gnu99 -Wall -no-pie \
-		-DKOS_PLATFORM=KOS_PLATFORM_DESKTOP -DKOS_DEVICES_PATH=\"devices/\" -DKOS_VSYNC=$vsync -DKOS_VIDEO_WIDTH=$width -DKOS_VIDEO_HEIGHT=$height -DKOS_MSAA=$msaa \
-		-Wno-parentheses -Wno-maybe-uninitialized -Wno-unused-result -Wno-unused-variable -Wno-unused-but-set-variable -Wno-main \
-		-lSDL2 -lGL -ldl
 fi
 
 if [ "$package" = "package" ]; then

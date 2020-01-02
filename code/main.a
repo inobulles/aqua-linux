@@ -8,31 +8,16 @@ import lib/devices/input/mouse.a
 import lib/devices/input/joystick.a
 import lib/devices/io/fs.a
 
+import lib/loaders/png.a
+
+import lib/devices/graphics/font.a
 import lib/devices/graphics/surface.a
 
-var data;
-var bytes;
-
-if (Fs.read("root/bird.png", &data, &bytes)) {
-	print "Failed to read\n";
-}
-
-var result = Device.send("png", 0x64, data, bytes);
-
-var bitmap = ?(result + 00);
-var bit_depth = ?(result + 08);
-var width = ?(result + 16);
-var height = ?(result + 24);
+Font->var font = new(Font).construct("config/fonts/main.ttf");
 
 Texture.filter(0x52);
-Texture->var texture = new(Texture).construct(bitmap, bit_depth, width, height);
-mfree data, bytes;
-
 Surface->var surface = new(Surface).construct();
-surface.texture texture;
-
-
-
+surface.texture Png.create_texture("bird.png"); // font.create_texture("Helium", PRECISION * 2);
 
 print "Count " ++ str(Joystick.count()) ++ "\n";
 
