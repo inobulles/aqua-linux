@@ -251,6 +251,7 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 	
 	rm -f aqua
 	gcc kos/glue.c -o aqua -std=gnu99 -no-pie -ldl $gcc_flags \
+		-Wno-int-to-pointer-cast -Wno-pointer-to-int-cast
 		-DKOS_DEVICES_PATH=\"devices/\" -DKOS_VSYNC=$vsync -DKOS_VIDEO_WIDTH=$width -DKOS_VIDEO_HEIGHT=$height -DKOS_MSAA=$msaa &
 	
 	echo "Compiling devices ..."
