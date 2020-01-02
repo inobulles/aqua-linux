@@ -9,6 +9,7 @@ kos=""
 update=""
 execute=""
 package=""
+broadcom=""
 msaa="0"
 vsync="1"
 width="800"
@@ -23,6 +24,7 @@ while test $# -gt 0; do
 	elif [ "$1" = "update"    ]; then update="update"
 	elif [ "$1" = "execute"   ]; then execute="execute"
 	elif [ "$1" = "package"   ]; then package="package"
+	elif [ "$1" = "broadcom"  ]; then broadcom="broadcom"
 	elif [ "$1" = "no-vsync"  ]; then vsync="0"
 	elif [ "$1" = "msaax"     ]; then msaa="$2";      shift
 	elif [ "$1" = "width"     ]; then width="$2";     shift
@@ -246,18 +248,18 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 	rm -rf devices
 	mkdir -p devices
 	
-	(
-		cd devices-source
-		for path in `find . -maxdepth 1 -type d -not -name "*git*" | tail -n +2`; do
-			(
-				echo "Compiling $path device ..."
-				cd $path
-				sh build.sh
-				mv device ../../devices/$path
-			) & # compiling in parallel!
-		done
-		wait # wait for everything to finish compiling
-	)
+	cd devices-source
+	for path in `find . -maxdepth 1 -type d -not -name "*git*" | tail -n +2`; do
+		(
+			echo "Compiling $path device ..."
+			cd $path
+			sh build.sh
+			mv device ../../devices/$path
+		) &
+	done
+	
+	cd ..
+	wait # wait for everything to finish compiling
 fi
 
 if [ "$package" = "package" ]; then
