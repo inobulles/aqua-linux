@@ -26,7 +26,7 @@ while test $# -gt 0; do
 	elif [ "$1" = "package"   ]; then package="package"
 	elif [ "$1" = "broadcom"  ]; then broadcom="broadcom"
 	elif [ "$1" = "no-vsync"  ]; then vsync="0"
-	elif [ "$1" = "msaax"     ]; then msaa="$2";      shift
+	elif [ "$1" = "msaa"      ]; then msaa="$2";      shift
 	elif [ "$1" = "width"     ]; then width="$2";     shift
 	elif [ "$1" = "height"    ]; then height="$2";    shift
 	elif [ "$1" = "code"      ]; then code="$2";      shift
