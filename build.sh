@@ -6,32 +6,36 @@ echo "AQUA Linux builder"
 echo "Parsing arguments ..."
 
 kos=""
+devices=""
 update=""
 execute=""
-package=""
 broadcom=""
+root="root"
+boot="root/boot.zpk"
 msaa="0"
 vsync="1"
 width="800"
 height="480"
 code=""
 code_path="code"
-example=""
+#~ example=""
 git_prefix="https://github.com"
 
 while test $# -gt 0; do
 	if   [ "$1" = "kos"       ]; then kos="kos"
+	elif [ "$1" = "devices"   ]; then devices="devices"
 	elif [ "$1" = "update"    ]; then update="update"
 	elif [ "$1" = "execute"   ]; then execute="execute"
-	elif [ "$1" = "package"   ]; then package="package"
 	elif [ "$1" = "broadcom"  ]; then broadcom="broadcom"
 	elif [ "$1" = "no-vsync"  ]; then vsync="0"
+	elif [ "$1" = "root"      ]; then root="$2";      shift
+	elif [ "$1" = "boot"      ]; then boot="$2";      shift
 	elif [ "$1" = "msaa"      ]; then msaa="$2";      shift
 	elif [ "$1" = "width"     ]; then width="$2";     shift
 	elif [ "$1" = "height"    ]; then height="$2";    shift
 	elif [ "$1" = "code"      ]; then code="$2";      shift
 	elif [ "$1" = "code-path" ]; then code_path="$2"; shift
-	elif [ "$1" = "example"   ]; then example="$2";   shift
+	#~ elif [ "$1" = "example"   ]; then example="$2";   shift
 	elif [ "$1" = "git-ssh"   ]; then git_prefix="ssh://git@github.com"
 	elif [ "$1" = "help"      ]; then cat README.md
 	else echo "WARNING Unknown argument '$1' (pass 'help' as an argument to get a list of all arguments)";
@@ -84,6 +88,14 @@ if [ "`command -v git`" = "" ]; then
 		cd ../..
 		rm -rf install-dump
 	fi
+fi
+if [ "`command -v iar`" = "" ]; then
+	echo "Installing IAR command line utility ..."
+	git clone $git_prefix/inobulles/iar --depth 1 -b master
+	cd iar
+	sh build.sh
+	cd ..
+	rm -rf iar
 fi
 ld -lSDL2 >/dev/null 2>&1 || {
 	echo "Installing SDL2 ..."
@@ -183,56 +195,48 @@ if [ "$update" = "update" ]; then
 	wait
 fi
 
-if [ "$example" != "" ]; then
-	if [ ! -d "examples" ]; then
-		echo "Downloading examples repository ..."
-		git clone $git_prefix/inobulles/aqua-examples --depth 1 -b master
-		mv aqua-examples examples
-	elif [ "$update" = "update" ]; then
-		echo "Updating examples repository ..."
-		cd examples
-		git pull origin master
-		cd ..
-	fi
-fi
+#~ if [ "$example" != "" ]; then
+	#~ if [ ! -d "examples" ]; then
+		#~ echo "Downloading examples repository ..."
+		#~ git clone $git_prefix/inobulles/aqua-examples --depth 1 -b master
+		#~ mv aqua-examples examples
+	#~ elif [ "$update" = "update" ]; then
+		#~ echo "Updating examples repository ..."
+		#~ cd examples
+		#~ git pull origin master
+		#~ cd ..
+	#~ fi
+#~ fi
 
 if [ "$code" != "" ]; then
 	rm -rf compiler/code
 	mkdir -p compiler/code
 	
-	if [ "$example" != "" ]; then
-		echo "Copying example code to compiler ..."
-		cp -r examples/$example/* compiler/code
-	else
+	#~ if [ "$example" != "" ]; then
+		#~ echo "Copying example code to compiler ..."
+		#~ cp -r examples/$example/* compiler/code
+	#~ else
 		echo "Copying code to compiler ..."
 		cp -r $code_path/* compiler/code
-	fi
-	
-	if [ -d "compiler/code/perm" ]; then
-		echo "Moving perm/ from compiler to root/perm/development/ ..."
-		rm -rf root/perm/development
-        mkdir -p root/perm
-		mkdir -p root/perm/development
-		mv compiler/code/perm/* root/perm/development
-	fi
+	#~ fi
 	
 	echo "Compiling code with universal compiler ..."
-	cd compiler
-	sh build.sh git-prefix $git_prefix $update code $code
-	cd ..
+	( cd compiler
+	sh build.sh git-prefix $git_prefix $update code $code )
 	
-	mv compiler/rom.zed rom.zed
 	mv compiler/rom.asm rom.asm
+	mv compiler/package.zpk root/development.zpk
+	boot="root/development.zpk"
 	
-	if [ "$example" != "" ]; then
-		echo "Copying generated ROM file to example folder ..."
-		cp rom.zed examples/$example/rom.zed
-	fi
-else
-	if [ "$example" != "" ]; then
-		echo "Getting example ROM to execute ..."
-		cp examples/$example/rom.zed rom.zed
-	fi
+	#~ if [ "$example" != "" ]; then
+		#~ echo "Copying generated ROM file to example folder ..."
+		#~ cp rom.zed examples/$example/rom.zed
+	#~ fi
+#~ else
+	#~ if [ "$example" != "" ]; then
+		#~ echo "Getting example ROM to execute ..."
+		#~ cp examples/$example/rom.zed rom.zed
+	#~ fi
 fi
 
 if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
@@ -253,51 +257,31 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 	gcc kos/glue.c -o aqua -std=gnu99 -no-pie -ldl $gcc_flags \
 		-DKOS_DEVICES_PATH=\"devices/\" -DKOS_VSYNC=$vsync -DKOS_VIDEO_WIDTH=$width -DKOS_VIDEO_HEIGHT=$height -DKOS_MSAA=$msaa &
 	
-	echo "Compiling devices ..."
+	if [ "$devices" = "devices" ]; then
+		echo "Compiling devices ..."
+		
+		rm -rf devices
+		mkdir -p devices
+		
+		cd devices-source
+		for path in `find . -maxdepth 1 -type d -not -name "*git*" | tail -n +2`; do
+			(
+				echo "Compiling $path device ..."
+				cd $path
+				sh build.sh $gcc_flags
+				mv device ../../devices/$path
+			) &
+		done
+		
+		cd ..
+	fi
 	
-	rm -rf devices
-	mkdir -p devices
-	
-	cd devices-source
-	for path in `find . -maxdepth 1 -type d -not -name "*git*" | tail -n +2`; do
-		(
-			echo "Compiling $path device ..."
-			cd $path
-			sh build.sh $gcc_flags
-			mv device ../../devices/$path
-		) &
-	done
-	
-	cd ..
 	wait # wait for everything to finish compiling
 fi
 
-if [ "$package" = "package" ]; then
-	echo "Packaging app ..."
-	mkdir package
-	cp rom.zed package/rom.zed
-	mkdir -p package/perm
-	cp -r root/perm/development/* package/perm/
-	tar -cf package.zpk package
-	rm -rf package
-fi
-
 if [ "$execute" = "execute" ]; then
-	if [ ! -f "rom.zed" ]; then
-		echo "ROM file does not exist, unpacking package.zpk ..."
-		tar -xf package.zpk
-		mv package/rom.zed rom.zed
-		
-		rm -rf root/perm/development/*
-		mkdir -p root/perm
-		mkdir -p root/perm/development
-		mv package/perm/* root/perm/development/
-		
-		rm -rf package
-	fi
-	
 	echo "Executing KOS ..."
-	./aqua
+	./aqua --root $root --boot $boot
 fi
 
 echo "AQUA Linux builder terminated with no errors"

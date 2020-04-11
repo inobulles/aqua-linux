@@ -5,10 +5,7 @@ compiler
 examples
 devices
 aqua
-rom.zed
 rom.asm
-package.zpk
 a.out
 install-dump
-package
 code
