@@ -11,7 +11,7 @@ update=""
 execute=""
 broadcom=""
 root="root"
-boot="root/boot.zpk"
+boot="$root/boot.zpk"
 msaa="0"
 vsync="1"
 width="800"
@@ -92,9 +92,8 @@ fi
 if [ "`command -v iar`" = "" ]; then
 	echo "Installing IAR command line utility ..."
 	git clone $git_prefix/inobulles/iar --depth 1 -b master
-	cd iar
-	sh build.sh
-	cd ..
+	( cd iar
+	sh build.sh )
 	rm -rf iar
 fi
 ld -lSDL2 >/dev/null 2>&1 || {
@@ -154,9 +153,9 @@ if [ ! -d "kos/zvm" ]; then
 	mv aqua-zvm kos/zvm
 fi ) &
 
-( if [ ! -d "root" ]; then
+( if [ ! -d "$root" ]; then
 	git clone $git_prefix/inobulles/aqua-root --depth 1 -b master
-	mv aqua-root root
+	mv aqua-root $root
 fi ) &
 
 ( if [ ! -d "devices-source" ]; then
@@ -181,7 +180,7 @@ if [ "$update" = "update" ]; then
 	( cd kos/zvm
 	git pull origin master ) &
 	
-	( cd root
+	( cd $root
 	git pull origin master ) &
 	
 	( cd devices-source
@@ -225,8 +224,8 @@ if [ "$code" != "" ]; then
 	sh build.sh git-prefix $git_prefix $update code $code )
 	
 	mv compiler/rom.asm rom.asm
-	mv compiler/package.zpk root/development.zpk
-	boot="root/development.zpk"
+	mv compiler/package.zpk $root/development.zpk
+	boot="$root/development.zpk"
 	
 	#~ if [ "$example" != "" ]; then
 		#~ echo "Copying generated ROM file to example folder ..."
@@ -256,28 +255,26 @@ if [ ! -f "aqua" ] || [ "$update" = "update" ] || [ "$kos" = "kos" ]; then
 	rm -f aqua
 	gcc kos/glue.c -o aqua -std=gnu99 -no-pie -ldl $gcc_flags \
 		-DKOS_DEVICES_PATH=\"devices/\" -DKOS_VSYNC=$vsync -DKOS_VIDEO_WIDTH=$width -DKOS_VIDEO_HEIGHT=$height -DKOS_MSAA=$msaa &
-	
-	if [ "$devices" = "devices" ]; then
-		echo "Compiling devices ..."
-		
-		rm -rf devices
-		mkdir -p devices
-		
-		cd devices-source
-		for path in `find . -maxdepth 1 -type d -not -name "*git*" | tail -n +2`; do
-			(
-				echo "Compiling $path device ..."
-				cd $path
-				sh build.sh $gcc_flags
-				mv device ../../devices/$path
-			) &
-		done
-		
-		cd ..
-	fi
-	
-	wait # wait for everything to finish compiling
 fi
+
+if [ ! -d "devices" ] || [ "$update" = "update" ] || [ "$devices" = "devices" ]; then
+	echo "Compiling devices ..."
+	
+	rm -rf devices
+	mkdir -p devices
+	
+	( cd devices-source
+	for path in `find . -maxdepth 1 -type d -not -name "*git*" | tail -n +2`; do
+		(
+			echo "Compiling $path device ..."
+			cd $path
+			sh build.sh $gcc_flags
+			mv device ../../devices/$path
+		) &
+	done )
+fi
+
+wait # wait for everything to finish compiling
 
 if [ "$execute" = "execute" ]; then
 	echo "Executing KOS ..."
